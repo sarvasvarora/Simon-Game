@@ -191,7 +191,7 @@ class Game {
                     this.levelDisplay.textContent = "WIN!";
                     this.beep();
                     this.start = false;
-                    setTimeout(this.hardReset(), 800);
+                    setTimeout(this.hardReset(), 1000);
                 }
             }
         }
@@ -203,7 +203,6 @@ class Game {
         this.toggleDisableAllButtons();
         this.levelDisplay.textContent = this.currentLevel;
         for (let i = 0; i < this.currentLevel; i++) {
-            console.log("i = " + i);
             setTimeout(() => this.randomSequence[i].flash(), i * 500);
         }
         this.toggleDisableAllButtons();
