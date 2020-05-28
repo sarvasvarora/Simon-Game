@@ -3,14 +3,16 @@ class Button {
     constructor(querySelectedElement) {
         this.element = querySelectedElement;
         this.name = this.element.getAttribute("id");
-        this.element.addEventListener("click", this.flash);
+        this.disabled = false;
     }
 
     flash() {
-        this.element.classList.add(this.name + "-flash");
-        setTimeout(() => this.element.classList.remove(this.name + "-flash"), 300);
-        let audio = new Audio(document.querySelector("#clip-" + this.name).getAttribute("src"));
-        audio.play();
+        if (!this.disabled) {
+            this.element.classList.add(this.name + "-flash");
+            setTimeout(() => this.element.classList.remove(this.name + "-flash"), 300);
+            let audio = new Audio(document.querySelector("#clip-" + this.name).getAttribute("src"));
+            audio.play();
+        }
     }
 
     addEventListenerButton(arg1, callback) {
@@ -18,14 +20,14 @@ class Button {
     }
 
     toggleDisabled() {
-        this.element.toggleAttribute("disabled");
+        this.disabled = !this.disabled;
     }
 
 }
 
 // the Simon Game class
 class Game {
-    constructor(topleft, topright, bottomleft, bottomright, startbutton, powerbutton, strictbutton, leveldisplay) {
+    constructor(topleft, topright, bottomleft, bottomright, startbutton, powerbutton, strictbutton, leveldisplay, maxLevelDisplay) {
         this.strictButton = strictbutton;
         this.strictMode = false;
 
@@ -43,6 +45,8 @@ class Game {
         this.randomSequence = [];
         this.playerSequence = [];
         this.MAXLEVEL = 20;
+        this.maxLevelDisplay = maxLevelDisplay;
+
         //Game buttons
         this.topLeft = new Button(topleft);
         this.topRight = new Button(topright);
@@ -55,21 +59,34 @@ class Game {
             3: this.bottomRight
         };
 
+        //EventListeners
         this.topLeft.addEventListenerButton("click", () => {
-            this.playerSequence.push(this.topLeft);
-            this.checkMove();
+            if (this.start && this.power && !this.topLeft.disabled) {
+                this.playerSequence.push(this.topLeft);
+                this.topLeft.flash();
+                this.checkMove();
+            }
         });
         this.topRight.addEventListenerButton("click", () => {
-            this.playerSequence.push(this.topRight);
-            this.checkMove();
+            if (this.start && this.power && !this.topRight.disabled) {
+                this.playerSequence.push(this.topRight);
+                this.topRight.flash();
+                this.checkMove();
+            }
         });
         this.bottomLeft.addEventListenerButton("click", () => {
-            this.playerSequence.push(this.bottomLeft);
-            this.checkMove();
+            if (this.start && this.power && !this.bottomLeft.disabled) {
+                this.playerSequence.push(this.bottomLeft);
+                this.bottomLeft.flash();
+                this.checkMove();
+            }
         });
         this.bottomRight.addEventListenerButton("click", () => {
-            this.playerSequence.push(this.bottomRight);
-            this.checkMove();
+            if (this.start && this.power && !this.bottomRight.disabled) {
+                this.playerSequence.push(this.bottomRight);
+                this.bottomRight.flash();
+                this.checkMove();
+            }
         });
 
         this.strictButton.addEventListener("click", () => this.strictMode = !this.strictMode);
@@ -106,26 +123,35 @@ class Game {
 
     // hardReset function
     hardReset() {
-        this.start = false;
+        this.levelDisplay.textContent = "--";
         this.noErrorStreak = 0;
-        this.levelDisplay.textContent = "";
         this.currentLevel = 1;
-        this.randomSequence = [];
         this.playerSequence = [];
+        this.randomSequence = [];
+        this.generateSequence();
     }
 
-    // resetLevel function
+    // resetLevel function to reset current level only
     resetLevel() {
-        this.start = true;
         this.noErrorStreak = 0;
         this.playerSequence = [];
-        this.levelDisplay.textContent = this.currentLevel;
     }
 
-    // random sequence generator funciton
+    // funciton to generate random sequence
     generateSequence() {
         for (let i = 0; i < 20; i++) {
             this.randomSequence.push(this.numberToButton[Math.floor(Math.random() * 4)]);
+        }
+    }
+
+    // function to change max-level
+    changeMaxLevel(newLevel) {
+        if (newLevel <= 0 || this.start) {
+            return false;
+        } else {
+            this.MAXLEVEL = newLevel;
+            this.maxLevelDisplay.textContent = this.MAXLEVEL;
+            return true;
         }
     }
 
@@ -133,19 +159,20 @@ class Game {
     checkMove() {
         console.log(this.randomSequence);
         console.log(this.playerSequence);
+
         if (this.playerSequence[this.playerSequence.length - 1] !== this.randomSequence[this.playerSequence.length - 1]) {
             // when there is error
             console.log("wrong move");
             if (this.strictMode) {
-                //go back to level 1 (hard reset maybe)
+                //go back to level 1 
                 this.levelDisplay.textContent = "NO!";
-                setTimeout(() => this.hardReset(), 1000);
-                this.computerPlayLevel();
+                setTimeout(() => this.hardReset(), 800);
+                setTimeout(() => this.computerPlayLevel(), 1000);
             } else {
-                //restart current level (soft resset maybe)
+                //restart current level 
                 this.levelDisplay.textContent = "NO!";
-                setTimeout(() => this.resetLevel(), 1000);
-                this.computerPlayLevel();
+                setTimeout(() => this.resetLevel(), 800);
+                setTimeout(() => this.computerPlayLevel(), 1000);
             }
         } else {
             console.log("correct move");
@@ -153,49 +180,41 @@ class Game {
             if (this.noErrorStreak === this.currentLevel) {
                 this.currentLevel++;
 
-                if (!this.checkWin()) { //when no win i.e next level
-                    this.levelDisplay.textContent = this.currentLevel;
+                if (!(this.currentLevel > this.MAXLEVEL)) {
+                    //when no win i.e next level
+                    this.playerSequence[this.playerSequence.length - 1].flash();
                     this.playerSequence = [];
                     this.noErrorStreak = 0;
-                    this.computerPlayLevel();
-                } else { // in case of win, beep and exit
+                    setTimeout(() => this.computerPlayLevel(), 1000);
+                } else {
+                    // in case of win, beep and hard reset
                     this.levelDisplay.textContent = "WIN!";
                     this.beep();
-                    this.hardReset();
+                    this.start = false;
+                    setTimeout(this.hardReset(), 800);
                 }
             }
         }
+
     }
 
-    // computer play moves with level = this.currentLevel
+    // computer play moves for this.currentLevel
     computerPlayLevel() {
-        //plays moves depending upon the level number entered as arguement
         this.toggleDisableAllButtons();
         this.levelDisplay.textContent = this.currentLevel;
-        for (var i = 0; i < this.currentLevel; i++) {
+        for (let i = 0; i < this.currentLevel; i++) {
             console.log("i = " + i);
             setTimeout(() => this.randomSequence[i].flash(), i * 500);
         }
         this.toggleDisableAllButtons();
     }
 
-    // win checker fucntion 
-    checkWin() { //returns boolean depending upon win or not
-        // win decidede by this.currentLevel > this.MAXLEVEL or not
-        if (this.currentLevel > this.MAXLEVEL) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     // function to toggleAttribute("disabled") for buttons
     toggleDisableAllButtons() {
-        // makes all buttons disabled (or unclickable) when computer is playing moves
-        this.topLeft.toggleDisabled("disabled");
-        this.topRight.toggleDisabled("disabled");
-        this.bottomLeft.toggleDisabled("disabled");
-        this.bottomRight.toggleDisabled("disabled");
+        this.topLeft.toggleDisabled();
+        this.topRight.toggleDisabled();
+        this.bottomLeft.toggleDisabled();
+        this.bottomRight.toggleDisabled();
     }
 
     //runGame function
@@ -219,27 +238,26 @@ let strictModeToggler = document.querySelector("#strict");
 let powerToggler = document.querySelector("#power");
 let gameDisplay = document.querySelector("#level");
 
-let simonGame = new Game(topLeft, topRight, bottomLeft, bottomRight, startButton, powerToggler, strictModeToggler, gameDisplay);
+let maxLevForm = document.querySelector("#set-max-level");
+let maxLevelInput = document.querySelector("#max-level-input");
+let currentMaxLevel = document.querySelector("#current-max-level");
 
+let simonGame = new Game(topLeft, topRight, bottomLeft, bottomRight, startButton, powerToggler, strictModeToggler, gameDisplay, currentMaxLevel);
 
-// PSEUDOCODE // Ignore //
-/*
-hard reset everything
-if start is clicked then
-check if power is on. if it is on then 
-generate random sequence
-currentLevel = 1 
-humanInteraction = false
-start game with level one
-    computerPLayMoves()
-    humanInteraction = true
-    as the user clicks buttons, check for moves
-        if noErrorStreak = currentLevel
-            currentLevel++
-            check for win
-            noErrorStreak = 0
-            playerMoves = []
-            start game with new currentLevel 
-        else reset game acc to strict mode
-*/
-// PSEUDOCODE // Ignore //
+function changeMaxLevel() {
+    if (!simonGame.changeMaxLevel(maxLevelInput.value)) {
+        maxLevelInput.classList.add("error");
+        setTimeout(() => {
+            maxLevelInput.classList.remove("error");
+        }, 600);
+    } else {
+        maxLevelInput.classList.add("success");
+        setTimeout(() => {
+            maxLevelInput.classList.remove("success");
+        }, 600);
+    }
+}
+maxLevForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    changeMaxLevel();
+});
