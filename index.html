@@ -6,9 +6,14 @@
     <title>Simon Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!--Fonts and CSS-->
     <link href='https://fonts.googleapis.com/css?family=Original+Surfer&effect=emboss' rel='stylesheet' type='text/css'>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
+    <!--Audio Clips-->
     <audio id="clip-topleft" src="Sounds/simonSound1.mp3">
     </audio>
     <audio id="clip-topright" src="Sounds/simonSound2.mp3">
@@ -17,34 +22,84 @@
     </audio>
     <audio id="clip-bottomright" src="Sounds/simonSound4.mp3">
     </audio>
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
+    <div class="container">
+        <div>
+            <h1>Let's play Simon!</h1>
+            <hr>
+            <div>
+                <h2>How to Play</h2>
+                <ul>
+                    <li>Press the Power Button to turn Simon ON.
+                        After the Startup Dance, press the START
+                        Button to start playing the game. The current
+                        level for that game will be displayed.</li>
+                    <li> Simon will give the first signal. (One of the Color
+                        Lenses will light up, accompanied by a tone.)</li>
+                    <li> Repeat that signal by touching the same Color Lens.</li>
+                    <li>Simon will repeat the first signal and then add one
+                        more. </li>
+                    <li>Repeat those two signals in the same order.</li>
+                    <li> Simon will continue to play the sequence and add one.
+                        Continue to repeat Simon till you win!</li>
 
-    <div id="outer-circle">
-        <div id="topleft"></div>
-        <div id="topright"></div>
-        <div id="bottomleft"></div>
-        <div id="bottomright"></div>
-        <div id="inner-circle">
-            <div id="title" class="font-effect-emboss">SIMON!</div>
-            <div id="switches">
-                <input type="checkbox" class="toggle" id="power">
-                <button class="button" id="start">Start</button>
-                <input type="checkbox" class="toggle" id="strict">
+                </ul>
             </div>
-            <div class="text1">
-                <span>POWER</span><span>STRICT</span>
+            <hr>
+            <div>
+                <h2>Strict Mode</h2>
+                <p>At any time, you can choose to turn Strict Mode ON/OFF by pressing the Strict Button. With strict
+                    mode on, if you play a wrong move, the game will automatically restart from level one. Without the
+                    Strict Mode, however, Simon will restart playing from the last level you played wrong.</p>
             </div>
-            <div id="level"></div>
-            <div class="text2">
-                COUNT
+            <hr>
+            <div>
+                <h2>Max Level</h2>
+                <p>You can set the level needed to win by entering the level number below. By default, the max level is
+                    20. You cannot change level while a game is running.</p>
+                <form id="set-max-level" action="">
+                    <input id="max-level-input" class="set-max-input" type="number" placeholder="Enter max level">
+                    <button class="set-max-btn">Set Max Level</button>
+                </form>
+                <p>Current Max Level: <b><span id="current-max-level"> 20</span></b></p>
+            </div>
+            <hr>
+            <div>
+                <p>Made with <span><i class="fa fa-heart" style="color: rgb(241, 31, 59)" aria-hidden="true"></i></span>
+                    by Sarvasv Arora</p>
+            </div>
+        </div>
+
+        <div>
+            <div id="outer-circle">
+                <div id="topleft"></div>
+                <div id="topright"></div>
+                <div id="bottomleft"></div>
+                <div id="bottomright"></div>
+                <div id="inner-circle">
+                    <div id="title" class="font-effect-emboss disable-select">SIMON!</div>
+                    <div id="switches">
+                        <input type="checkbox" class="toggle" id="power">
+                        <button class="button disable-select" id="start">Start</button>
+                        <input type="checkbox" class="toggle" id="strict">
+                    </div>
+                    <div class="text1">
+                        <span class="disable-select">POWER</span><span class="disable-select">STRICT</span>
+                    </div>
+                    <div id="level" class="disable-select"></div>
+                    <div class="text2 disable-select">
+                        COUNT
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="game.js"></script>
-
 </body>
 
 </html>
