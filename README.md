@@ -1,5 +1,5 @@
 # Simon-Game
-## Play here: https://sarvasvarora@github.io/Simon-Game/
+## Play here: https://sarvasvarora.me/simon-game
 ## Recreated the popular Simon game using JavaScript. 
 
 - User can choose to enable/disable strict mode. With strict mode on, if the user plays a wrong move, the game will automatically restart from level one. However, without strict mode, only the current level would restart.
